@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#312e81">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="format-detection" content="telephone=no">
+    <title>English Grammar Quiz - SQU Foundation Level</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbars for clean UI */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Mobile and touch optimizations */
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            overflow-x: hidden;
+            overscroll-behavior-y: contain;
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        button {
+            min-height: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #options-container button {
+            width: 100%;
+        }
+
+        @media (max-width: 640px) {
+            header > div {
+                padding-top: calc(0.65rem + env(safe-area-inset-top));
+                padding-bottom: 0.65rem;
+            }
+
+            main {
+                padding-top: 0.85rem !important;
+                padding-bottom: 1rem !important;
+            }
+
+            #quiz-view {
+                gap: 1rem !important;
+            }
+
+            #question-text {
+                font-size: 1.12rem !important;
+                line-height: 1.55 !important;
+            }
+
+            #options-container button {
+                padding: 0.85rem !important;
+            }
+
+            #options-container .font-medium {
+                line-height: 1.35;
+            }
+
+            /* Make quiz navigation comfortable on narrow screens */
+            #prev-btn,
+            #submit-btn,
+            #next-btn,
+            #finish-early-btn {
+                min-height: 48px;
+            }
+
+            #prev-btn {
+                flex: 1 1 34%;
+            }
+
+            #submit-btn,
+            #next-btn,
+            #finish-early-btn {
+                flex: 1 1 58%;
+                justify-content: center;
+            }
+
+            #palette-grid button {
+                min-height: 42px;
+                font-size: 0.82rem;
+            }
+
+            #results-view {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+
+            footer {
+                margin-top: 1rem !important;
+            }
+        }
+
+        @media (max-width: 390px) {
+            #question-category {
+                max-width: 62%;
+                white-space: normal;
+                line-height: 1.2;
+            }
+
+            #question-number-label {
+                font-size: 0.75rem;
+                text-align: right;
+            }
+
+            #prev-btn,
+            #submit-btn,
+            #next-btn,
+            #finish-early-btn {
+                font-size: 0.8rem;
+                padding-left: 0.8rem !important;
+                padding-right: 0.8rem !important;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+    <noscript>
+        <div style="padding:12px;text-align:center;background:#fff3cd;color:#664d03;font-family:Arial,sans-serif;">
+            This quiz needs JavaScript enabled in your browser.
+        </div>
+    </noscript>
+
+    <!-- Header -->
+    <header class="bg-indigo-900 text-white shadow-md border-b border-indigo-800 sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-700 p-2 rounded-lg text-indigo-200">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Foundation English Grammar</h1>
+                    <p class="text-xs text-indigo-200 hidden sm:block">Present Simple, Negatives & Subject-Verb Agreement</p>
+                </div>
+            </div>
+            
+            <div id="header-stats" class="flex items-center space-x-4">
+                <!-- Timer Badge -->
+                <div class="bg-indigo-950/70 border border-indigo-700/50 rounded-lg px-3 py-1.5 flex items-center space-x-2 text-sm font-mono">
+                    <i class="fa-regular fa-clock text-amber-400"></i>
+                    <span id="timer-display" class="font-semibold text-slate-100">00:00</span>
+                </div>
+                <!-- Question Counter -->
+                <div class="hidden md:flex bg-indigo-950/70 border border-indigo-700/50 rounded-lg px-3 py-1.5 items-center space-x-2 text-sm">
+                    <i class="fa-solid fa-list-check text-indigo-300"></i>
+                    <span id="header-counter" class="font-medium text-slate-100">0 / 25</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+        <!-- Active Quiz View -->
+        <div id="quiz-view" class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            
+            <!-- Question Content Section (Left 3 columns on LG) -->
+            <div class="lg:col-span-3 space-y-4">
+                
+                <!-- Progress Header Card -->
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col gap-3">
+                    <div class="flex justify-between items-center text-sm font-medium text-slate-600">
+                        <span id="question-category" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            <!-- Category Badge Dynamic Insertion -->
+                        </span>
+                        <span id="question-number-label" class="text-slate-500 font-semibold">Question 1 of 25</span>
+                    </div>
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="bg-indigo-600 h-full transition-all duration-300 ease-out" style="width: 4%"></div>
+                    </div>
+                </div>
+
+                <!-- Main Question Box -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 relative">
+                    <div class="mb-6">
+                        <h2 class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-1">Fill in the blank:</h2>
+                        <p id="question-text" class="text-xl md:text-2xl font-medium text-slate-800 leading-relaxed">
+                            <!-- Dynamic Question Text -->
+                        </p>
+                    </div>
+
+                    <!-- Options Container -->
+                    <div id="options-container" class="space-y-3 mb-6">
+                        <!-- Options generated dynamically -->
+                    </div>
+
+                    <!-- Feedback Box (Hidden by default) -->
+                    <div id="feedback-box" class="hidden mb-6 p-4 rounded-xl border transition-all duration-200">
+                        <div class="flex items-start space-x-3">
+                            <div id="feedback-icon" class="text-xl mt-0.5"></div>
+                            <div class="space-y-1">
+                                <h4 id="feedback-title" class="font-bold text-base"></h4>
+                                <p id="feedback-text" class="text-sm leading-relaxed"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Navigation Bar -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
+                        <button type="button" id="prev-btn" onclick="previousQuestion()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition duration-150 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-arrow-left"></i> Previous
+                        </button>
+
+                        <div class="flex flex-1 justify-end gap-3 min-w-0">
+                            <button type="button" id="submit-btn" onclick="submitAnswer()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm transition duration-150 shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Submit Answer <i class="fa-solid fa-check"></i>
+                            </button>
+                            <button type="button" id="next-btn" onclick="nextQuestion()" class="hidden px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-medium rounded-lg text-sm transition duration-150 shadow-sm items-center gap-2">
+                                Next <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                            <button type="button" id="finish-early-btn" onclick="showResults()" class="hidden px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-sm transition duration-150 flex items-center gap-2">
+                                Finish Quiz <i class="fa-solid fa-flag-checkered"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Palette Sidebar (Right column) -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sticky top-20">
+                    <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
+                        <span>Question Palette</span>
+                        <span class="text-xs font-normal text-slate-500">(25 total)</span>
+                    </h3>
+                    
+                    <!-- Grid of 25 Buttons -->
+                    <div id="palette-grid" class="grid grid-cols-5 gap-2 mb-4">
+                        <!-- Generated via JS -->
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="space-y-2 border-t border-slate-100 pt-3 text-xs text-slate-600">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 bg-indigo-600 rounded-md inline-block"></span>
+                            <span>Current</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 bg-emerald-500 rounded-md inline-block"></span>
+                            <span>Correct</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 bg-rose-500 rounded-md inline-block"></span>
+                            <span>Incorrect</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 bg-slate-100 border border-slate-300 rounded-md inline-block"></span>
+                            <span>Unanswered</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Results View (Hidden by default) -->
+        <div id="results-view" class="hidden max-w-4xl mx-auto space-y-6">
+            
+            <!-- Result Summary Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 text-center space-y-6">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-50 text-indigo-600 mb-2">
+                    <i class="fa-solid fa-award text-4xl"></i>
+                </div>
+                
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Quiz Completed!</h2>
+                    <p class="text-slate-500 text-sm mt-1">Here is a summary of your performance across the grammar domains.</p>
+                </div>
+
+                <!-- Big Score Stats -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 py-4">
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <span class="block text-xs uppercase font-bold text-slate-400 mb-1">Score Percentage</span>
+                        <span id="res-percentage" class="text-3xl font-extrabold text-indigo-600">0%</span>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <span class="block text-xs uppercase font-bold text-slate-400 mb-1">Correct Answers</span>
+                        <span id="res-correct" class="text-3xl font-extrabold text-slate-800">0 / 25</span>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <span class="block text-xs uppercase font-bold text-slate-400 mb-1">Time Elapsed</span>
+                        <span id="res-time" class="text-3xl font-extrabold text-slate-800">00:00</span>
+                    </div>
+                </div>
+
+                <!-- Breakdown by Topic Table -->
+                <div class="text-left border-t border-slate-100 pt-6">
+                    <h3 class="text-base font-bold text-slate-800 mb-3">Domain Performance Breakdown</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider">
+                                    <th class="p-3 rounded-l-lg">Grammar Category</th>
+                                    <th class="p-3 text-center">Correct</th>
+                                    <th class="p-3 text-center">Total</th>
+                                    <th class="p-3 text-right rounded-r-lg">Accuracy</th>
+                                </tr>
+                            </thead>
+                            <tbody id="category-breakdown-body" class="divide-y divide-slate-100 font-medium">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Restart Button -->
+                <div class="pt-4 flex justify-center gap-4">
+                    <button type="button" onclick="restartQuiz()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-sm transition duration-150 flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Try Again (Reshuffle Items)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-8">
+        <p>SQU Foundation English Language Program &bull; Intermediate Grammar Practice Platform</p>
+    </footer>
+
+    <script>
+        // -------------------------------------------------------------
+        // 1. DATA BANK: 25 Detailed Items balanced across 3 domains
+        // -------------------------------------------------------------
+        const rawQuestionBank = [
+            // --- PRESENT SIMPLE TENSE (8 Items) ---
+            {
+                id: 1,
+                category: "Present Simple Tense",
+                question: "The Earth _______ around the Sun once every 365 days.",
+                options: ["revolves", "revolve", "is revolving", "revolved"],
+                correctIndex: 0,
+                explanation: "We use the Present Simple ('revolves') for universal scientific truths and natural facts. Third-person singular subject ('The Earth') requires the '-s' suffix."
+            },
+            {
+                id: 2,
+                category: "Present Simple Tense",
+                question: "Dr. Al-Hinai always _______ his research papers before submitting them to international journals.",
+                options: ["proofread", "proofreads", "is proofreading", "has proofread"],
+                correctIndex: 1,
+                explanation: "Frequency adverbs like 'always' indicate habitual action in the Present Simple. Singular subject 'Dr. Al-Hinai' takes 'proofreads'."
+            },
+            {
+                id: 3,
+                category: "Present Simple Tense",
+                question: "Water _______ at 100 degrees Celsius under standard atmospheric pressure.",
+                options: ["boils", "boil", "is boiling", "boiled"],
+                correctIndex: 0,
+                explanation: "General scientific facts are expressed using Present Simple. 'Water' is an uncountable noun (singular), so we use 'boils'."
+            },
+            {
+                id: 4,
+                category: "Present Simple Tense",
+                question: "The lecture on Renewable Energy _______ at 8:00 AM every Sunday.",
+                options: ["commences", "commence", "is commencing", "commenced"],
+                correctIndex: 0,
+                explanation: "Present Simple is used for scheduled events/timetables. Singular subject 'The lecture' takes the '-s' ending ('commences')."
+            },
+            {
+                id: 5,
+                category: "Present Simple Tense",
+                question: "Many students in the Foundation Program _______ late for morning tutorials during heavy traffic.",
+                options: ["arrives", "arrive", "are arriving", "is arriving"],
+                correctIndex: 1,
+                explanation: "'Many students' is a plural subject, requiring the base form of the verb ('arrive') without any '-s' suffix."
+            },
+            {
+                id: 6,
+                category: "Present Simple Tense",
+                question: "Professor Salim rarely _______ email inquiries on weekends.",
+                options: ["answer", "answers", "answering", "is answering"],
+                correctIndex: 1,
+                explanation: "Adverbs of frequency like 'rarely' are used with Present Simple for routine actions. Third-person singular subject 'Professor Salim' requires 'answers'."
+            },
+            {
+                id: 7,
+                category: "Present Simple Tense",
+                question: "Sultan Qaboos University _______ top-tier research programs in engineering and medicine.",
+                options: ["offer", "offers", "offering", "are offering"],
+                correctIndex: 1,
+                explanation: "'Sultan Qaboos University' is a singular proper institution name, demanding a third-person singular verb ('offers')."
+            },
+            {
+                id: 8,
+                category: "Present Simple Tense",
+                question: "Chemical engineers frequently _______ industrial processes to maximize productivity.",
+                options: ["analyzes", "analyze", "analyzing", "is analyzing"],
+                correctIndex: 1,
+                explanation: "Plural subject ('Chemical engineers') takes the base form verb ('analyze') in Present Simple general statements."
+            },
+
+            // --- NEGATIVE STATEMENTS (8 Items) ---
+            {
+                id: 9,
+                category: "Negative Statements",
+                question: "The project coordinator _______ agree with the proposed budget revision.",
+                options: ["doesn't", "don't", "isn't", "aren't"],
+                correctIndex: 0,
+                explanation: "For singular third-person subjects ('The project coordinator'), use 'does not' or 'doesn't' followed by the base verb ('agree')."
+            },
+            {
+                id: 10,
+                category: "Negative Statements",
+                question: "The fresh graduates _______ possess all the required technical certifications yet.",
+                options: ["doesn't", "don't", "isn't", "hasn't"],
+                correctIndex: 1,
+                explanation: "Plural subject ('The fresh graduates') requires 'do not' or 'don't' as the auxiliary in Present Simple negative statements."
+            },
+            {
+                id: 11,
+                category: "Negative Statements",
+                question: "She doesn't _______ her assignments on Sundays due to personal commitments.",
+                options: ["submits", "submit", "submitting", "submitted"],
+                correctIndex: 1,
+                explanation: "After the auxiliary 'doesn't' or 'don't', the main verb MUST remain in its base/bare infinitive form ('submit'), without '-s'."
+            },
+            {
+                id: 12,
+                category: "Negative Statements",
+                question: "The laboratory equipment _______ belong to the biology department.",
+                options: ["doesn't", "don't", "aren't", "isn't"],
+                correctIndex: 0,
+                explanation: "'Equipment' is an uncountable noun (singular). Therefore, it takes 'doesn't' + base verb ('belong')."
+            },
+            {
+                id: 13,
+                category: "Negative Statements",
+                question: "We _______ usually encounter system outages during peak registration hours.",
+                options: ["doesn't", "don't", "aren't", "isn't"],
+                correctIndex: 1,
+                explanation: "First-person plural pronoun 'We' takes 'don't' in Present Simple negative sentences."
+            },
+            {
+                id: 14,
+                category: "Negative Statements",
+                question: "The new campus shuttle service _______ operate on official public holidays.",
+                options: ["don't", "doesn't", "isn't", "aren't"],
+                correctIndex: 1,
+                explanation: "'The new campus shuttle service' is a singular noun phrase, requiring 'doesn't'."
+            },
+            {
+                id: 15,
+                category: "Negative Statements",
+                question: "I _______ think that the final examination schedule will be modified.",
+                options: ["don't", "doesn't", "am not", "isn't"],
+                correctIndex: 0,
+                explanation: "First-person subject 'I' uses 'don't' for negative Present Simple main verbs like 'think'."
+            },
+            {
+                id: 16,
+                category: "Negative Statements",
+                question: "These high-tech devices _______ require frequent software updates.",
+                options: ["doesn't", "don't", "isn't", "hasn't"],
+                correctIndex: 1,
+                explanation: "Plural demonstrative subject 'These high-tech devices' pairs with 'don't'."
+            },
+
+            // --- SUBJECT-VERB AGREEMENT (9 Items) ---
+            {
+                id: 17,
+                category: "Subject-Verb Agreement",
+                question: "Neither the professor nor the research assistants _______ present at today's seminar.",
+                options: ["was", "were", "is", "are"],
+                correctIndex: 3,
+                explanation: "When subjects are joined by 'neither... nor', the verb agrees with the closer subject. Here, 'research assistants' (plural) requires 'are'."
+            },
+            {
+                id: 18,
+                category: "Subject-Verb Agreement",
+                question: "Either the laboratory assistants or the chief technician _______ responsible for unlocking the room.",
+                options: ["are", "is", "were", "have been"],
+                correctIndex: 1,
+                explanation: "In 'either... or' structures, the verb agrees with the subject closest to it. 'The chief technician' is singular, so we use 'is'."
+            },
+            {
+                id: 19,
+                category: "Subject-Verb Agreement",
+                question: "Every student and faculty member _______ expected to adhere to the academic integrity guidelines.",
+                options: ["are", "is", "were", "have"],
+                correctIndex: 1,
+                explanation: "Subjects preceded by 'every' or 'each' always take a singular verb ('is'), even if joined by 'and'."
+            },
+            {
+                id: 20,
+                category: "Subject-Verb Agreement",
+                question: "The list of approved research topics for Foundation students _______ published on the bulletin board.",
+                options: ["are", "is", "were", "have been"],
+                correctIndex: 1,
+                explanation: "The true subject is 'The list' (singular). The prepositional phrase 'of approved research topics' does not change the subject number."
+            },
+            {
+                id: 21,
+                category: "Subject-Verb Agreement",
+                question: "Everyone in the advanced writing modules _______ required to submit an original portfolio.",
+                options: ["are", "is", "were", "have"],
+                correctIndex: 1,
+                explanation: "Indefinite pronouns like 'everyone', 'somebody', 'each', and 'nobody' are grammatically singular and require singular verbs ('is')."
+            },
+            {
+                id: 22,
+                category: "Subject-Verb Agreement",
+                question: "The committee _______ undecided regarding the implementation of the new grading policy.",
+                options: ["is", "are", "were", "have been"],
+                correctIndex: 0,
+                explanation: "Collective nouns (like 'committee', 'team', 'staff') acting as a single unified unit take a singular verb ('is')."
+            },
+            {
+                id: 23,
+                category: "Subject-Verb Agreement",
+                question: "Statistics _______ a required core course for all data science majors at SQU.",
+                options: ["are", "is", "were", "have"],
+                correctIndex: 1,
+                explanation: "Academic disciplines ending in '-ics' (e.g., Statistics, Physics, Mathematics) are singular when referring to the field of study."
+            },
+            {
+                id: 24,
+                category: "Subject-Verb Agreement",
+                question: "Ten million OMR _______ allocated for the construction of the new student center.",
+                options: ["was", "were", "are", "have been"],
+                correctIndex: 0,
+                explanation: "Amounts of money, time, distance, or weight are considered single quantities and take singular verbs ('was')."
+            },
+            {
+                id: 25,
+                category: "Subject-Verb Agreement",
+                question: "A number of international scholars _______ participating in the annual symposium.",
+                options: ["is", "are", "was", "has been"],
+                correctIndex: 1,
+                explanation: "The phrase 'A number of...' is treated as plural (meaning 'several') and takes a plural verb ('are'). (Note: 'THE number of...' takes singular)."
+            }
+        ];
+
+        // Quiz State Variables
+        let questions = [];
+        let currentQuestionIdx = 0;
+        let userAnswers = new Array(25).fill(null); // Array storing user selections
+        let timerInterval = null;
+        let secondsElapsed = 0;
+
+        /**
+         * Fisher-Yates Shuffle Algorithm to randomize array in-place
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /**
+         * Initializes the quiz data, shuffles options for each question, and sets up UI
+         */
+        function initQuiz() {
+            // Deep clone raw data
+            questions = JSON.parse(JSON.stringify(rawQuestionBank));
+
+            // Shuffle questions or keep fixed order, then shuffle options for EACH question dynamically
+            questions.forEach(q => {
+                const originalCorrectOption = q.options[q.correctIndex];
+                
+                // Array of option objects
+                let optionObjects = q.options.map((optText, idx) => ({
+                    text: optText,
+                    isCorrect: idx === q.correctIndex
+                }));
+
+                // Apply Fisher-Yates Shuffle to options
+                shuffleArray(optionObjects);
+
+                // Re-assign updated options and find new correctIndex
+                q.options = optionObjects.map(o => o.text);
+                q.correctIndex = optionObjects.findIndex(o => o.isCorrect);
+            });
+
+            userAnswers = new Array(questions.length).fill(null);
+            currentQuestionIdx = 0;
+            secondsElapsed = 0;
+
+            // Start Timer
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                updateTimerDisplay();
+            }, 1000);
+
+            // Render Views
+            document.getElementById('quiz-view').classList.remove('hidden');
+            document.getElementById('results-view').classList.add('hidden');
+            renderPalette();
+            loadQuestion(0);
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+            const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').textContent = `${mins}:${secs}`;
+        }
+
+        /**
+         * Render the 25-item question palette grid
+         */
+        function renderPalette() {
+            const paletteGrid = document.getElementById('palette-grid');
+            paletteGrid.innerHTML = '';
+
+            questions.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `palette-btn-${idx}`;
+                btn.textContent = idx + 1;
+                btn.type = 'button';
+                btn.setAttribute('aria-label', `Go to question ${idx + 1}`);
+                btn.className = getPaletteBtnClass(idx);
+                btn.onclick = () => jumpToQuestion(idx);
+                paletteGrid.appendChild(btn);
+            });
+        }
+
+        function getPaletteBtnClass(idx) {
+            const isCurrent = idx === currentQuestionIdx;
+            const userAns = userAnswers[idx];
+
+            let base = "h-9 w-full rounded-lg text-xs font-semibold flex items-center justify-center transition border ";
+
+            if (isCurrent) {
+                return base + "bg-indigo-600 text-white border-indigo-700 shadow-sm ring-2 ring-indigo-300";
+            } else if (userAns !== null) {
+                if (userAns.isCorrect) {
+                    return base + "bg-emerald-500 text-white border-emerald-600";
+                } else {
+                    return base + "bg-rose-500 text-white border-rose-600";
+                }
+            } else {
+                return base + "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100";
+            }
+        }
+
+        function updatePaletteItem(idx) {
+            const btn = document.getElementById(`palette-btn-${idx}`);
+            if (btn) {
+                btn.className = getPaletteBtnClass(idx);
+            }
+        }
+
+        /**
+         * Load question by index into the active UI
+         */
+        function loadQuestion(idx) {
+            // Save current index state
+            const prevIdx = currentQuestionIdx;
+            currentQuestionIdx = idx;
+            
+            // Update Palette styling for old and new indices
+            updatePaletteItem(prevIdx);
+            updatePaletteItem(currentQuestionIdx);
+
+            const q = questions[idx];
+
+            // Category & Counter Updates
+            document.getElementById('question-category').innerHTML = `<i class="fa-solid fa-layer-group text-xs"></i> ${q.category}`;
+            document.getElementById('question-number-label').textContent = `Question ${idx + 1} of ${questions.length}`;
+            document.getElementById('header-counter').textContent = `${userAnswers.filter(a => a !== null).length} / ${questions.length}`;
+
+            // Progress Bar Width
+            const progressPct = ((idx + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPct}%`;
+
+            // Question Text
+            document.getElementById('question-text').textContent = q.question;
+
+            // Render Options (A, B, C, D)
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            const prefixes = ['A', 'B', 'C', 'D'];
+            const userState = userAnswers[idx];
+
+            q.options.forEach((opt, optIdx) => {
+                const optBtn = document.createElement('button');
+                optBtn.type = 'button';
+                optBtn.setAttribute('aria-label', `Answer ${prefixes[optIdx]}: ${opt}`);
+                optBtn.className = getOptionStyle(idx, optIdx);
+                optBtn.disabled = userState !== null; // Lock if already answered
+                optBtn.onclick = () => selectOption(optIdx);
+
+                optBtn.innerHTML = `
+                    <div class="flex items-center space-x-3 w-full">
+                        <span class="w-7 h-7 flex items-center justify-center rounded-md font-bold text-xs uppercase border ${getOptionPrefixStyle(idx, optIdx)}">
+                            ${prefixes[optIdx]}
+                        </span>
+                        <span class="font-medium text-slate-800 text-sm sm:text-base break-words min-w-0">${opt}</span>
+                    </div>
+                `;
+                optionsContainer.appendChild(optBtn);
+            });
+
+            // Handle Feedback Display
+            const feedbackBox = document.getElementById('feedback-box');
+            if (userState !== null) {
+                feedbackBox.classList.remove('hidden');
+                if (userState.isCorrect) {
+                    feedbackBox.className = "p-4 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-900";
+                    document.getElementById('feedback-icon').innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i>`;
+                    document.getElementById('feedback-title').textContent = "Correct Answer!";
+                } else {
+                    feedbackBox.className = "p-4 rounded-xl border bg-rose-50 border-rose-200 text-rose-900";
+                    document.getElementById('feedback-icon').innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i>`;
+                    document.getElementById('feedback-title').textContent = "Incorrect";
+                }
+                document.getElementById('feedback-text').textContent = q.explanation;
+            } else {
+                feedbackBox.classList.add('hidden');
+            }
+
+            // Button visibility controls
+            document.getElementById('prev-btn').disabled = idx === 0;
+
+            const submitBtn = document.getElementById('submit-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const finishBtn = document.getElementById('finish-early-btn');
+
+            if (userState === null) {
+                // Not answered yet
+                submitBtn.classList.remove('hidden');
+                nextBtn.classList.add('hidden');
+                finishBtn.classList.add('hidden');
+            } else {
+                // Answered already
+                submitBtn.classList.add('hidden');
+                if (idx < questions.length - 1) {
+                    nextBtn.classList.remove('hidden');
+                    finishBtn.classList.add('hidden');
+                } else {
+                    nextBtn.classList.add('hidden');
+                    finishBtn.classList.remove('hidden');
+                }
+            }
+        }
+
+        // Selected Option tracker before submission
+        let tempSelectedOptIdx = null;
+
+        function selectOption(optIdx) {
+            if (userAnswers[currentQuestionIdx] !== null) return; // locked
+
+            tempSelectedOptIdx = optIdx;
+            
+            // Highlight temporarily
+            const container = document.getElementById('options-container');
+            Array.from(container.children).forEach((child, i) => {
+                if (i === optIdx) {
+                    child.className = "w-full text-left p-4 rounded-xl border-2 transition flex items-center justify-between border-indigo-600 bg-indigo-50/60 shadow-sm";
+                } else {
+                    child.className = "w-full text-left p-4 rounded-xl border transition flex items-center justify-between border-slate-200 bg-white hover:border-slate-300";
+                }
+            });
+        }
+
+        function getOptionStyle(qIdx, optIdx) {
+            const userState = userAnswers[qIdx];
+            const q = questions[qIdx];
+
+            if (userState === null) {
+                if (tempSelectedOptIdx === optIdx) {
+                    return "w-full text-left p-4 rounded-xl border-2 transition flex items-center justify-between border-indigo-600 bg-indigo-50/60 shadow-sm";
+                }
+                return "w-full text-left p-4 rounded-xl border transition flex items-center justify-between border-slate-200 bg-white hover:border-slate-300";
+            }
+
+            // Question has been answered
+            if (optIdx === q.correctIndex) {
+                return "w-full text-left p-4 rounded-xl border-2 transition flex items-center justify-between border-emerald-500 bg-emerald-50 font-semibold";
+            }
+            if (userState.selectedIdx === optIdx && !userState.isCorrect) {
+                return "w-full text-left p-4 rounded-xl border-2 transition flex items-center justify-between border-rose-500 bg-rose-50";
+            }
+
+            return "w-full text-left p-4 rounded-xl border transition flex items-center justify-between border-slate-100 bg-slate-50 text-slate-400 opacity-60";
+        }
+
+        function getOptionPrefixStyle(qIdx, optIdx) {
+            const userState = userAnswers[qIdx];
+            const q = questions[qIdx];
+
+            if (userState === null) {
+                if (tempSelectedOptIdx === optIdx) {
+                    return "bg-indigo-600 text-white border-indigo-600";
+                }
+                return "bg-slate-100 text-slate-600 border-slate-200";
+            }
+
+            if (optIdx === q.correctIndex) {
+                return "bg-emerald-600 text-white border-emerald-600";
+            }
+            if (userState.selectedIdx === optIdx && !userState.isCorrect) {
+                return "bg-rose-600 text-white border-rose-600";
+            }
+
+            return "bg-slate-100 text-slate-400 border-slate-200";
+        }
+
+        /**
+         * Submit the answer for the current active question
+         */
+        function submitAnswer() {
+            if (tempSelectedOptIdx === null) {
+                alert("Please select an answer choice before submitting.");
+                return;
+            }
+
+            const q = questions[currentQuestionIdx];
+            const isCorrect = tempSelectedOptIdx === q.correctIndex;
+
+            // Save user answer
+            userAnswers[currentQuestionIdx] = {
+                selectedIdx: tempSelectedOptIdx,
+                isCorrect: isCorrect
+            };
+
+            tempSelectedOptIdx = null;
+
+            // Reload same question view to show feedback & styling
+            loadQuestion(currentQuestionIdx);
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIdx < questions.length - 1) {
+                tempSelectedOptIdx = null;
+                loadQuestion(currentQuestionIdx + 1);
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIdx > 0) {
+                tempSelectedOptIdx = null;
+                loadQuestion(currentQuestionIdx - 1);
+            }
+        }
+
+        function jumpToQuestion(idx) {
+            tempSelectedOptIdx = null;
+            loadQuestion(idx);
+        }
+
+        /**
+         * Final results view calculation and rendering
+         */
+        function showResults() {
+            if (timerInterval) clearInterval(timerInterval);
+
+            const totalQuestions = questions.length;
+            const correctCount = userAnswers.filter(a => a && a.isCorrect).length;
+            const percentage = Math.round((correctCount / totalQuestions) * 100);
+
+            // Hide Quiz view, show Results view
+            document.getElementById('quiz-view').classList.add('hidden');
+            document.getElementById('results-view').classList.remove('hidden');
+
+            // Set main scores
+            document.getElementById('res-percentage').textContent = `${percentage}%`;
+            document.getElementById('res-correct').textContent = `${correctCount} / ${totalQuestions}`;
+            
+            const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+            const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+            document.getElementById('res-time').textContent = `${mins}:${secs}`;
+
+            // Category breakdown processing
+            const categories = {};
+            questions.forEach((q, idx) => {
+                if (!categories[q.category]) {
+                    categories[q.category] = { correct: 0, total: 0 };
+                }
+                categories[q.category].total++;
+                if (userAnswers[idx] && userAnswers[idx].isCorrect) {
+                    categories[q.category].correct++;
+                }
+            });
+
+            // Populate Breakdown Table
+            const tbody = document.getElementById('category-breakdown-body');
+            tbody.innerHTML = '';
+
+            Object.keys(categories).forEach(cat => {
+                const stat = categories[cat];
+                const catPct = Math.round((stat.correct / stat.total) * 100);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 text-slate-800 font-semibold">${cat}</td>
+                    <td class="p-3 text-center text-slate-600">${stat.correct}</td>
+                    <td class="p-3 text-center text-slate-600">${stat.total}</td>
+                    <td class="p-3 text-right">
+                        <span class="inline-block px-2.5 py-1 rounded-md text-xs font-bold ${
+                            catPct >= 75 ? 'bg-emerald-100 text-emerald-800' :
+                            catPct >= 50 ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'
+                        }">
+                            ${catPct}%
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        /**
+         * Restart and reshuffle quiz
+         */
+        function restartQuiz() {
+            initQuiz();
+        }
+
+        // Initialize quiz on load
+        window.onload = function() {
+            initQuiz();
+        };
+    </script>
+</body>
+</html>
